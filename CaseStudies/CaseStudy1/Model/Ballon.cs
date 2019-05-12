@@ -19,7 +19,7 @@ namespace CaseStudy1.Model
 
 
         public string LayerName { get; set; }
-        public string CharInput { get; set; }
+        public string StringInput { get; set; }
         public Ballon(){}
 
     }

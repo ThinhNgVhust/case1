@@ -10,3 +10,15 @@ C:\Users\Ha_nt\Desktop\NguyenVanThinhBKA\thinh_nv\CaseStudy\CaseStudies\CaseStud
 C:\Users\Ha_nt\Desktop\NguyenVanThinhBKA\thinh_nv\CaseStudy\CaseStudies\CaseStudy1\obj\Debug\CaseStudy1.dll
 C:\Users\Ha_nt\Desktop\NguyenVanThinhBKA\thinh_nv\CaseStudy\CaseStudies\CaseStudy1\obj\Debug\CaseStudy1.pdb
 C:\Users\Ha_nt\Desktop\NguyenVanThinhBKA\thinh_nv\CaseStudy\CaseStudies\CaseStudy1\obj\Debug\CaseStudy1.csprojResolveAssemblyReference.cache
+C:\Users\Admin\Desktop\case1\CaseStudies\CaseStudy1\obj\Debug\CaseStudy1.csprojAssemblyReference.cache
+C:\Users\Admin\Desktop\case1\CaseStudies\CaseStudy1\obj\Debug\View\ViewBallon.g.cs
+C:\Users\Admin\Desktop\case1\CaseStudies\CaseStudy1\obj\Debug\GeneratedInternalTypeHelper.g.cs
+C:\Users\Admin\Desktop\case1\CaseStudies\CaseStudy1\obj\Debug\CaseStudy1_MarkupCompile.cache
+C:\Users\Admin\Desktop\case1\CaseStudies\CaseStudy1\obj\Debug\CaseStudy1_MarkupCompile.lref
+C:\Users\Admin\Desktop\case1\CaseStudies\CaseStudy1\obj\Debug\CaseStudy1.dll
+C:\Users\Admin\Desktop\case1\CaseStudies\CaseStudy1\obj\Debug\CaseStudy1.pdb
+C:\Users\Admin\Desktop\case1\CaseStudies\CaseStudy1\bin\Debug\CaseStudy1.dll
+C:\Users\Admin\Desktop\case1\CaseStudies\CaseStudy1\bin\Debug\CaseStudy1.pdb
+C:\Users\Admin\Desktop\case1\CaseStudies\CaseStudy1\obj\Debug\View\ViewBallon.baml
+C:\Users\Admin\Desktop\case1\CaseStudies\CaseStudy1\obj\Debug\CaseStudy1.g.resources
+C:\Users\Admin\Desktop\case1\CaseStudies\CaseStudy1\obj\Debug\CaseStudy1.csproj.CoreCompileInputs.cache

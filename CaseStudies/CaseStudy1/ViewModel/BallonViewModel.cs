@@ -15,6 +15,10 @@ namespace CaseStudy1.ViewModel
         {
             this.myBallon = new Ballon();
         }
+        public BallonViewModel(Ballon ballon)
+        {
+            this.myBallon = ballon;
+        }
         public double Angle
         {
             get { return myBallon.Angle; }
@@ -84,14 +88,14 @@ namespace CaseStudy1.ViewModel
                 }
             }
         }
-        public string CharInput
+        public string StringInput
         {
-            get { return myBallon.CharInput; }
+            get { return myBallon.StringInput; }
             set
             {
-                if (value != myBallon.CharInput)
+                if (value != myBallon.StringInput)
                 {
-                    myBallon.CharInput = value;
+                    myBallon.StringInput = value;
                     OnPropertyChange("CharInput");
                 }
             }
