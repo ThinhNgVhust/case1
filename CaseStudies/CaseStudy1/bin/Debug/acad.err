@@ -1,6 +1,8 @@
 
 
-FATAL ERROR:  Unhandled Access Violation Reading 0x0000 Exception at 8f87755ch
+INTERNAL ERROR:  !dbobji.cpp@8440: eNotOpenForWrite
 
-05/13/2019 at 10:14:16.000  Drawing: Drawing1.dwg
+05/13/2019 at 23:14:16.000  Drawing: Drawing1.dwg
+-------------
+awing1.dwg
 -------------

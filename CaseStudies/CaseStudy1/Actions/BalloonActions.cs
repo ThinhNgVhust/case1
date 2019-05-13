@@ -138,6 +138,9 @@ namespace CaseStudy1.Actions
 
         public static void EditWindow(ObjectId groupId)
         {
+            Document doc = AcAp.Application.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Transaction trans = doc.TransactionManager.StartTransaction();
             Group group = null;
             Ballon ballon = null;
             try
@@ -147,9 +150,7 @@ namespace CaseStudy1.Actions
                 Editor editor = acDoc.Editor;
                 using (Transaction acTrans = acCurDb.TransactionManager.StartTransaction())
                 {
-                    group = acTrans.GetObject(groupId, OpenMode.ForRead) as Group;
-
-
+                    group = acTrans.GetObject(groupId, OpenMode.ForWrite) as Group;
                 }
 
             }
@@ -161,9 +162,64 @@ namespace CaseStudy1.Actions
             {
                 ballon = ReadBallonFromBuffer(group.XData);
                 ViewBallon viewBallon = new ViewBallon();
-                BallonViewModel ballonViewModel = new BallonViewModel(); ballonViewModel.MyBallon = ballon;
+                BallonViewModel ballonViewModel = new BallonViewModel();
+                ballonViewModel.MyBallon = ballon;
                 viewBallon.DataContext = ballonViewModel;
                 ballonViewModel.GetData = new RelayCommand(EditDataInvoke);
+                ballonViewModel.Layers = DatabaseHelper.GetAllLayerFromCad();
+                AcAp.Application.ShowModalWindow(viewBallon);
+
+                //edit, update
+                using (trans)
+                {
+                    ObjectId[] objectIds = group.GetAllEntityIds();
+                    Line line = null;
+                    Circle circle = null;
+                    DBText dBText = null;
+
+                    foreach (ObjectId item in objectIds)
+                    {
+                        if ((trans.GetObject(item, OpenMode.ForWrite) as Line) != null) {
+                            line = trans.GetObject(item, OpenMode.ForWrite) as Line;
+                           
+                        }
+                        if ((trans.GetObject(item, OpenMode.ForWrite) as Circle) != null)
+                        {
+                            circle = trans.GetObject(item, OpenMode.ForWrite) as Circle;
+                           
+                        }
+                        if ((trans.GetObject(item, OpenMode.ForWrite) as DBText) != null)
+                        {
+                            dBText = trans.GetObject(item, OpenMode.ForWrite) as DBText;
+                           
+
+                        }
+                    }
+                    dBText.TextString = ballonViewModel.StringInput;
+                    double newLenth = ballonViewModel.Length;
+                    double newRadian = ballonViewModel.Angle * Math.PI / 180;
+                    line.EndPoint = new Point3d(line.StartPoint.X + newLenth * Math.Cos(newRadian), line.StartPoint.Y + newLenth * Math.Sin(newRadian), line.StartPoint.Z);
+                    line.Layer = ballonViewModel.LayerName;
+                    line.ColorIndex = ballonViewModel.ColorIndex;
+                    double newRadius = ballonViewModel.Radius;
+                    circle.Radius = newRadius;
+                    circle.Center = new Point3d(line.EndPoint.X + newRadius * Math.Cos(newRadian), line.EndPoint.Y + newRadius * Math.Sin(newRadian), line.EndPoint.Z);
+                    dBText.AlignmentPoint = circle.Center;
+                    string appName = group.XData.AsArray().ElementAt(0).ToString();
+                    try
+                    {
+                        ResultBuffer rb = CreateBalloonBuffer(ballon, appName);
+                        group.XData = rb;
+                    }
+                    catch (Exception e)
+                    {
+
+                    }
+                    rb.Dispose();
+
+                    trans.Commit();
+                }
+                
             }
 
 
@@ -171,8 +227,10 @@ namespace CaseStudy1.Actions
 
         private static void EditDataInvoke(object obj)
         {
-            //edit, update
-            //save xdate
+            Window wnd = obj as Window;
+            wnd.Close();
+            return;
+            
         }
 
         public static ResultBuffer CreateBalloonBuffer(Ballon ballon, string ballonXDataName)
@@ -182,16 +240,16 @@ namespace CaseStudy1.Actions
             var para2 = ballon.Length;
             var para3 = ballon.LayerName;
             var para4 = ballon.ColorIndex;
-            string s = String.Format("R: {0}         A: {1}            L: {2}         Layer:{3}              Color:{4}", para0, para1, para2, para3, para4);
-            MessageBox.Show(s);
+            var para5 = ballon.StringInput;
             ResultBuffer rb =
                   new ResultBuffer(
                     new TypedValue(1001, ballonXDataName),// ten
                     new TypedValue(1000, para3),// ten layer
                     new TypedValue(1040, para1),//Angle
                     new TypedValue(1040, para2),//length
-                     new TypedValue(1040, para0),//ban kinh
-                      new TypedValue(1071, para4)//color index
+                    new TypedValue(1040, para0),//ban kinh
+                    new TypedValue(1071, para4),//color index
+                    new TypedValue(1000, para5)//string input
                   );
 
             return rb;
@@ -200,14 +258,24 @@ namespace CaseStudy1.Actions
 
         public static Ballon ReadBallonFromBuffer(ResultBuffer buffer)
         {
-            Ballon bal = null;
-            TypedValue[] rvArr = buffer.AsArray();
-            bal.LayerName = rvArr[1].Value as String;
-            bal.Angle = (double)rvArr[2].Value;
-            bal.Length = (double)rvArr[3].Value;
-            bal.Radius = (double)rvArr[0].Value;
-            bal.ColorIndex = (int)rvArr[4].Value;
-            return bal;
+
+            try
+            {
+                Ballon bal = new Ballon();
+                TypedValue[] rvArr = buffer.AsArray();
+               
+                bal.LayerName = (string)rvArr[1].Value;
+                bal.Angle = (double)rvArr[2].Value;
+                bal.Length = (double)rvArr[3].Value;
+                bal.Radius = (double)rvArr[4].Value;
+                bal.ColorIndex = (int)rvArr[5].Value;
+                bal.StringInput = (string)rvArr[6].Value;
+                return bal;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
         }
 
     }

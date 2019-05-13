@@ -65,26 +65,10 @@ namespace CaseStudy1.ACADCommand
                 BalloonActions.EditWindow(groupId);
             }
             
-            //Application.ShowModalWindow(viewBallon);
+          
 
 
         }
-        private ArrayList GetAllGroupsIds()
-        {
-            ArrayList ids = new ArrayList();
-            Database db = HostApplicationServices.WorkingDatabase;
-            Transaction trans = db.TransactionManager.StartTransaction();
-            try
-            {
-                DBDictionary lt = (DBDictionary)trans.GetObject(db.GroupDictionaryId, OpenMode.ForRead);
-                foreach (DictionaryEntry ide in lt) ids.Add(ide.Value);
-                trans.Commit();
-            }
-            finally
-            {
-                trans.Dispose();
-            }
-            return ids;
-        }
+        
     }
 }

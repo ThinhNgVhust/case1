@@ -31,15 +31,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AcCoreMgd">
-      <HintPath>..\..\..\NguyenVanThinhBKA\ObjectARX 2018\inc\AcCoreMgd.dll</HintPath>
+      <HintPath>..\..\..\HiCas\ObjectARX 2018\inc\AcCoreMgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="AcDbMgd">
-      <HintPath>..\..\..\NguyenVanThinhBKA\ObjectARX 2018\inc\AcDbMgd.dll</HintPath>
+      <HintPath>..\..\..\HiCas\ObjectARX 2018\inc\AcDbMgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="AcMgd">
-      <HintPath>..\..\..\NguyenVanThinhBKA\ObjectARX 2018\inc\AcMgd.dll</HintPath>
+      <HintPath>..\..\..\HiCas\ObjectARX 2018\inc\AcMgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PresentationCore" />
