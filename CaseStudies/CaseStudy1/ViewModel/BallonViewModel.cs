@@ -4,29 +4,43 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace CaseStudy1.ViewModel
 {
-  public class BallonViewModel : ObservableBase
+    public class BallonViewModel : ObservableBase
     {
-        private Ballon myBallon = null;
+        private Ballon _myBallon;
+        public Ballon MyBallon
+        {
+            get { return _myBallon; }
+            set { _myBallon = value; }
+        }
 
+        public RelayCommand GetData { get; set; }
         public BallonViewModel()
         {
-            this.myBallon = new Ballon();
+            MyBallon = new Ballon();
+            Angle = 0;
+            Length = 0;
+            Radius = 0;
+            StringInput = "String input";
+            ColorIndex = 0;
+            LayerName = "";
+            Colors = new List<string>();
+            Colors.Add("Red");
+            Colors.Add("Green");
+            Colors.Add("Blue");
         }
-        public BallonViewModel(Ballon ballon)
-        {
-            this.myBallon = ballon;
-        }
+
         public double Angle
         {
-            get { return myBallon.Angle; }
+            get { return MyBallon.Angle; }
             set
             {
-                if (myBallon.Angle != value)
+                if (MyBallon.Angle != value)
                 {
-                    myBallon.Angle = value;
+                    MyBallon.Angle = value;
                     OnPropertyChange("Angle");
                 }
             }
@@ -34,12 +48,12 @@ namespace CaseStudy1.ViewModel
 
         public double Length
         {
-            get { return myBallon.Length; }
+            get { return MyBallon.Length; }
             set
             {
-                if (myBallon.Length != value)
+                if (MyBallon.Length != value)
                 {
-                    myBallon.Length = value;
+                    MyBallon.Length = value;
                     OnPropertyChange("Length");
                 }
             }
@@ -47,58 +61,81 @@ namespace CaseStudy1.ViewModel
 
         public double Radius
         {
-            get { return myBallon.Radius; }
+            get { return MyBallon.Radius; }
             set
             {
-                if (myBallon.Radius != value)
+                if (MyBallon.Radius != value)
                 {
-                    myBallon.Radius = value;
+                    MyBallon.Radius = value;
                     OnPropertyChange("Radius");
                 }
             }
         }
 
 
+
+        public List<string> Colors
+        {
+            get;
+            set;
+        }
         public int ColorIndex
         {
             get
             {
-                return myBallon.ColorIndex;
+                return MyBallon.ColorIndex;
             }
             set
             {
-                if (value != myBallon.ColorIndex)
+                if (value != MyBallon.ColorIndex)
                 {
-                    myBallon.ColorIndex = value;
+                    MyBallon.ColorIndex = value + 1;
                     OnPropertyChange("ColorIndex");
                 }
             }
         }
 
-
+        public List<string> Layers
+        {
+            get;
+            set;
+        }
         public string LayerName
         {
-            get { return myBallon.LayerName; }
+            get { return MyBallon.LayerName; }
             set
             {
-                if (value != myBallon.LayerName)
+                if (value != MyBallon.LayerName)
                 {
-                    myBallon.LayerName = value;
+                    MyBallon.LayerName = value;
                     OnPropertyChange("LayerName");
                 }
             }
         }
         public string StringInput
         {
-            get { return myBallon.StringInput; }
+            get { return MyBallon.StringInput; }
             set
             {
-                if (value != myBallon.StringInput)
+                if (value != MyBallon.StringInput)
                 {
-                    myBallon.StringInput = value;
-                    OnPropertyChange("CharInput");
+                    MyBallon.StringInput = value;
+                    OnPropertyChange("StringInput");
                 }
             }
+        }
+
+
+        public bool Validate(ref string error)
+        {
+            if(Length < 0.0001)
+            {
+                error = "Failed1";
+                return false;
+            }
+
+
+            return true;
         }
 
     }

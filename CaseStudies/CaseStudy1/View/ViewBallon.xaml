@@ -44,15 +44,10 @@
                 <Label Content="Layer" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="14" Padding="5" Grid.Row="3"/>
                 <TextBox Name = "tbAngle" Text ="{Binding Angle}" Grid.Row="0" Grid.Column="1" Margin="10" Padding="0" ScrollViewer.CanContentScroll="True" ToolTip="Must be a number.."></TextBox>
                 <TextBox Name = "tbLength" Text ="{Binding Length}" Grid.Row="1" Grid.Column="1" Margin="10" Padding="0" ScrollViewer.CanContentScroll="True" ToolTip="Must be a positive number.."></TextBox>
-                <ComboBox Name="ccbColor" Grid.Row="2" Grid.Column="1" Margin="10" IsEditable="False" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-                    <ComboBoxItem IsSelected="True" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Red</ComboBoxItem>
-                    <ComboBoxItem HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Green</ComboBoxItem>
-                    <ComboBoxItem HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Blue</ComboBoxItem>
+                <ComboBox Name="ccbColor" Grid.Row="2" Grid.Column="1" ItemsSource="{Binding Colors, Mode=TwoWay}"  SelectedIndex="{Binding ColorIndex, Mode=TwoWay}" Margin="10" IsEditable="False" Padding="0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                 </ComboBox>
-                <ComboBox Name="ccbLayer" Grid.Row="3" Grid.Column="1" Margin="10" IsEditable="False" Padding="10,0,0,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-                    <ComboBoxItem IsSelected="True" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Layer#1</ComboBoxItem>
-                    <ComboBoxItem HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Layer#2</ComboBoxItem>
-                    <ComboBoxItem HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Layer#3</ComboBoxItem>
+
+                <ComboBox Name="ccbLayer" Grid.Row="3" Grid.Column="1" ItemsSource="{Binding Layers, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"  SelectedItem="{Binding LayerName}" SelectedIndex="0" Margin="10" IsEditable="False" Padding="10,0,0,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Cursor="Pen">
                 </ComboBox>
             </Grid>
         </GroupBox>
@@ -77,10 +72,10 @@
                     <ColumnDefinition Width="3*"/>
                 </Grid.ColumnDefinitions>
                 <Label Content="String Input" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="12" Padding="5" Grid.Column="0"/>
-                <TextBox Name = "tbStringInput" Text ="{Binding CharInput }" Grid.Column="1" Margin="10" Padding="0" ScrollViewer.CanContentScroll="True" ToolTip="Must be a single character.."></TextBox>
+                <TextBox Name = "tbStringInput" Text ="{Binding StringInput }" Grid.Column="1" Margin="10" Padding="0" ScrollViewer.CanContentScroll="True" ToolTip="Must be a single character.."></TextBox>
             </Grid>
         </GroupBox>
-        <Button Grid.Row="4" Content="Submit" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" BorderThickness="2" Click="Button_Click">
+        <Button Grid.Row="4" Content="Submit" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" BorderThickness="2" Command="{Binding GetData}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Margin="152,10,142,37">
             <Button.IsEnabled>
                 <MultiBinding UpdateSourceTrigger="PropertyChanged" Converter="{StaticResource visualConverter}">
                     <Binding ElementName="tbAngle" Path="Text"/>

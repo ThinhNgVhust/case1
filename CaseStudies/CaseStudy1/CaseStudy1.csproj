@@ -31,15 +31,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AcCoreMgd">
-      <HintPath>..\..\..\HiCas\ObjectARX 2018\inc\AcCoreMgd.dll</HintPath>
+      <HintPath>..\..\..\NguyenVanThinhBKA\ObjectARX 2018\inc\AcCoreMgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="AcDbMgd">
-      <HintPath>..\..\..\HiCas\ObjectARX 2018\inc\AcDbMgd.dll</HintPath>
+      <HintPath>..\..\..\NguyenVanThinhBKA\ObjectARX 2018\inc\AcDbMgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="AcMgd">
-      <HintPath>..\..\..\HiCas\ObjectARX 2018\inc\AcMgd.dll</HintPath>
+      <HintPath>..\..\..\NguyenVanThinhBKA\ObjectARX 2018\inc\AcMgd.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PresentationCore" />
@@ -57,8 +57,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ACADCommand\Commands.cs" />
+    <Compile Include="Actions\BalloonActions.cs" />
     <Compile Include="Model\Ballon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utils\DatabaseHelper.cs" />
     <Compile Include="ViewModel\BallonViewModel.cs" />
     <Compile Include="ViewModel\ObservableBase.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />

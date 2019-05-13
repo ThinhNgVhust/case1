@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace CaseStudy1.View.ValidationConverters
@@ -25,6 +26,7 @@ namespace CaseStudy1.View.ValidationConverters
                 isRadius = val > 0 ? true : false;
             }
             bool isString = !string.IsNullOrWhiteSpace(values[3].ToString());
+           
             return isAngle && isLength && isRadius && isString;
         }
 
