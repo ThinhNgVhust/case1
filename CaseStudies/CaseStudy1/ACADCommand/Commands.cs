@@ -24,13 +24,11 @@ namespace CaseStudy1.ACADCommand
 {
     public class Commands
     {
-
         [CommandMethod("Insert_Ballon")]
-        public void Insert_Ballon()
+        public void InsertBallon()
         {
             new BalloonActions().ShowWindow();
         }
-
         [CommandMethod("Edit_Ballon")]
         public void EditBallon()
         {
@@ -57,9 +55,7 @@ namespace CaseStudy1.ACADCommand
                             break;
                         }
                     }
-                    
                 }
-               
             }
             if (!groupId.IsNull) {
                 BalloonActions.EditWindow(groupId);

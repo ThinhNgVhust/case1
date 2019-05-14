@@ -4,12 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CaseStudy1.View"
-             xmlns:validationconverters="clr-namespace:CaseStudy1.View.ValidationConverters"
              mc:Ignorable="d" 
-             Title="StudyCase1 - By ThingNgHust" Height="600" Width="400" ResizeMode="NoResize" Background="#FFE7E8E1" >
-    <Window.Resources>
-        <validationconverters:VisualConverter x:Key="visualConverter"/>
-    </Window.Resources>
+             Title="CaseStudy1 - By ThingNgHust" Height="600" Width="400" ResizeMode="NoResize" Background="#FFE7E8E1" >
     <Window.Foreground>
         <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
             <GradientStop Color="Black" Offset="0"/>
@@ -23,7 +19,6 @@
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
             <RowDefinition Height="1*"/>
-
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" FontSize="60" FontFamily="Times New Roman" FontStyle="Italic" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Top" ><Run FontStyle="Normal" FontFamily="Romantic" Text="Balloon"/><LineBreak/><Run/></TextBlock>
         <GroupBox Grid.Row="1" Header="Line" BorderThickness="2" BorderBrush="#FF30443D" FontSize="20" Margin="10,0">
@@ -75,15 +70,7 @@
                 <TextBox Name = "tbStringInput" Text ="{Binding StringInput }" Grid.Column="1" Margin="10" Padding="0" ScrollViewer.CanContentScroll="True" ToolTip="Must be a single character.."></TextBox>
             </Grid>
         </GroupBox>
-        <Button Grid.Row="4" Content="Submit" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" BorderThickness="2" Command="{Binding GetData}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Margin="152,10,142,37">
-            <Button.IsEnabled>
-                <MultiBinding UpdateSourceTrigger="PropertyChanged" Converter="{StaticResource visualConverter}">
-                    <Binding ElementName="tbAngle" Path="Text"/>
-                    <Binding ElementName="tbLength" Path="Text"/>
-                    <Binding ElementName="tbRadius" Path="Text"/>
-                    <Binding ElementName="tbStringInput" Path="Text"/>
-                </MultiBinding>
-            </Button.IsEnabled>
+        <Button Grid.Row="4" Content="Submit" FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" Width="100" IsEnabled="{Binding ValidateButton}" BorderThickness="2" Command="{Binding GetData}" CommandParameter="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" Margin="152,10,142,37">
         </Button>
     </Grid>
 </Window>

@@ -1,4 +1,5 @@
-﻿using CaseStudy1.Model;
+﻿using Autodesk.AutoCAD.DatabaseServices;
+using CaseStudy1.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +43,7 @@ namespace CaseStudy1.ViewModel
                 {
                     MyBallon.Angle = value;
                     OnPropertyChange("Angle");
+                    OnPropertyChange("ValidateButton");
                 }
             }
         }
@@ -55,6 +57,7 @@ namespace CaseStudy1.ViewModel
                 {
                     MyBallon.Length = value;
                     OnPropertyChange("Length");
+                    OnPropertyChange("ValidateButton");
                 }
             }
         }
@@ -68,6 +71,7 @@ namespace CaseStudy1.ViewModel
                 {
                     MyBallon.Radius = value;
                     OnPropertyChange("Radius");
+                    OnPropertyChange("ValidateButton");
                 }
             }
         }
@@ -91,6 +95,7 @@ namespace CaseStudy1.ViewModel
                 {
                     MyBallon.ColorIndex = value + 1;
                     OnPropertyChange("ColorIndex");
+                    OnPropertyChange("ValidateButton");
                 }
             }
         }
@@ -109,6 +114,7 @@ namespace CaseStudy1.ViewModel
                 {
                     MyBallon.LayerName = value;
                     OnPropertyChange("LayerName");
+                    OnPropertyChange("ValidateButton");
                 }
             }
         }
@@ -130,13 +136,39 @@ namespace CaseStudy1.ViewModel
         {
             if(Length < 0.0001)
             {
-                error = "Failed1";
+                error = "Chieu dai khong duoc qua nho";
                 return false;
             }
-
-
+            if (Radius < 0.0001)
+            {
+                error = "Ban kinh khong duoc qua nho";
+                return false;
+            }
             return true;
         }
+        public bool ValidateButton
+        {
+            get
+            {
+                double val = 0;
+                bool isAngle = double.TryParse(Angle.ToString(), out val);
+                bool isLength = double.TryParse(Length.ToString(), out val);
+                if (isLength)
+                {
+                    isLength = val > 0 ? true : false;
+                }
+                bool isRadius = double.TryParse(Radius.ToString(), out val);
+                if (isRadius)
+                {
+                    isRadius = val > 0 ? true : false;
+                }
+                bool isString = !string.IsNullOrWhiteSpace(StringInput.ToString());
 
+                return isAngle && isLength && isRadius && isString;
+            }
+            set { }
+        }
+           
+        public ObjectId  BallonObjectId { get; set; }
     }
 }

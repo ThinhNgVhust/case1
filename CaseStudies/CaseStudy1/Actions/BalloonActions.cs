@@ -26,6 +26,7 @@ namespace CaseStudy1.Actions
 
         const double DEFAULT_TEXT_HEIGHT = 5;
         const int DEFAULT_TEXT_COLOR = 1;
+        const string BALLON_XDATA_NAME= "BallonXdata";
 
         public void ShowWindow()
         {
@@ -38,7 +39,6 @@ namespace CaseStudy1.Actions
                 ballonViewModel.Layers = DatabaseHelper.GetAllLayerFromCad();
                 if (ballonViewModel.Layers != null && ballonViewModel.Layers.Count > 0)
                     ballonViewModel.LayerName = ballonViewModel.Layers.ElementAt(0);
-
                 AcAp.Application.ShowModalWindow(viewBallon);
             }
             catch (Exception e)
@@ -47,7 +47,7 @@ namespace CaseStudy1.Actions
             }
         }
 
-        protected void GetDataInvoke(object obj)
+        private void GetDataInvoke(object obj)
         {
             Window wnd = obj as Window;
             BallonViewModel result = wnd.DataContext as BallonViewModel;
@@ -73,66 +73,124 @@ namespace CaseStudy1.Actions
             Transaction trans = doc.TransactionManager.StartTransaction();
             using (trans)
             {
-                PromptPointResult pPtRes;
-                PromptPointOptions pPtOpts = new PromptPointOptions("Enter Base point[X,Y]: ");
-                pPtRes = doc.Editor.GetPoint(pPtOpts);
-                if (pPtRes.Status == PromptStatus.Cancel) return;
-                double angle = ballon.Angle;
-                double length = ballon.Length;
-                double radius = ballon.Radius;
-                int colorIndex = ballon.ColorIndex;
-                string layerName = ballon.LayerName;
-                string textInput = ballon.StringInput;
-                Point3d startPoint = pPtRes.Value;
-                double radian = angle * Math.PI / 180;
-                Point3d endPoint = new Point3d(startPoint.X + length * Math.Cos(radian), startPoint.Y + length * Math.Sin(radian), startPoint.Z);
-                Line line = new Line(startPoint, endPoint);
-                short index = (short)colorIndex;
-                line.ColorIndex = colorIndex;
-                Point3d center = new Point3d(startPoint.X + (length + radius) * Math.Cos(radian), startPoint.Y + (length + radius) * Math.Sin(radian), startPoint.Z);
-                Circle cir = new Circle();
-                cir.SetDatabaseDefaults();
-                cir.Center = center;
-                cir.Radius = radius;
-                DBText text = new DBText();
-                text.VerticalMode = TextVerticalMode.TextVerticalMid;
-                text.HorizontalMode = TextHorizontalMode.TextCenter;
-                text.AlignmentPoint = center;
-                text.ColorIndex = DEFAULT_TEXT_COLOR;
-                text.Height = DEFAULT_TEXT_HEIGHT;
-                text.TextString = textInput;
-                //Open the Layer table for read
-                LayerTable layerTable;
-                layerTable = trans.GetObject(db.LayerTableId,
-                                                  OpenMode.ForRead) as LayerTable;
-
-                if (layerTable.Has(layerName) != true)
+                try
                 {
-                    DatabaseHelper.CreateLayer(layerName);
+                    PromptPointResult pPtRes;
+                    PromptPointOptions pPtOpts = new PromptPointOptions("Enter Base point[X,Y]: ");
+                    pPtRes = doc.Editor.GetPoint(pPtOpts);
+                    if (pPtRes.Status == PromptStatus.Cancel) return;
+                    Point3d startPoint = pPtRes.Value;
+                    //Line line = new Line(startPoint, endPoint);
+                    Line line = CreateLine(startPoint, ballon.Angle,ballon.Length,ballon.LayerName,ballon.ColorIndex);
+                    Circle cir = CreateCirle(line.EndPoint,ballon.Angle,ballon.Radius);
+                    DBText text = CreateText(cir.Center, ballon.StringInput);
+                    //Open the Layer table for read
+                    ObjectId oLineId = DatabaseHelper.AppendEntityToDatabase(line);
+                    ObjectId oCircleId = DatabaseHelper.AppendEntityToDatabase(cir);
+                    ObjectId oTextId = DatabaseHelper.AppendEntityToDatabase(text);
+                    Group grp = new Group("Test group description", true);
+                    // Add the new group to the dictionary
+                    DBDictionary gd = trans.GetObject(db.GroupDictionaryId, OpenMode.ForRead) as DBDictionary;
+                    gd.UpgradeOpen();
+                    ObjectId grpId = gd.SetAt("GroupCaseStudy1", grp);
+                    trans.AddNewlyCreatedDBObject(grp, true);
+                    ObjectIdCollection ids = new ObjectIdCollection();
+                    ids.Add(oLineId);
+                    ids.Add(oCircleId);
+                    ids.Add(oTextId);
+                    grp.InsertAt(0, ids);
+                    ResultBuffer rb = CreateBalloonBuffer(ballon, BALLON_XDATA_NAME);
+                    grp.XData = rb;
+                    rb.Dispose();
+                    trans.Commit();
                 }
-                line.Layer = layerName;
+                catch (System.Exception e)
+                {
+                    trans.Abort();
+                }
+            }
+        }
 
-                ObjectId oLineId = DatabaseHelper.AppendEntityToDatabase(line);
-                ObjectId oCircleId = DatabaseHelper.AppendEntityToDatabase(cir);
-                ObjectId oTextId = DatabaseHelper.AppendEntityToDatabase(text);
-                Group grp = new Group("Test group description", true);
-                // Add the new group to the dictionary
-                DBDictionary gd = trans.GetObject(db.GroupDictionaryId, OpenMode.ForRead) as DBDictionary;
-                gd.UpgradeOpen();
-                ObjectId grpId = gd.SetAt("GroupCaseStudy1", grp);
-                trans.AddNewlyCreatedDBObject(grp, true);
-                ObjectIdCollection ids = new ObjectIdCollection();
-                ids.Add(oLineId);
-                ids.Add(oCircleId);
-                ids.Add(oTextId);
-                grp.InsertAt(0, ids);
-                string ballonXDataName = "BallonXdata";
-                DatabaseHelper.AddRegAppTableRecord(ballonXDataName);
-                ResultBuffer rb = CreateBalloonBuffer(ballon, ballonXDataName);
+        private DBText CreateText(Point3d center, string stringInput)
+        {
+            Document doc = AcAp.Application.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Transaction trans = doc.TransactionManager.StartTransaction();
+            using (trans)
+            {
+                try
+                {
+                    DBText text = new DBText();
+                    text.VerticalMode = TextVerticalMode.TextVerticalMid;
+                    text.HorizontalMode = TextHorizontalMode.TextCenter;
+                    text.AlignmentPoint = center;
+                    text.ColorIndex = DEFAULT_TEXT_COLOR;
+                    text.Height = DEFAULT_TEXT_HEIGHT;
+                    text.TextString = stringInput;
+                    return text;
+                }
+                catch (System.Exception e)
+                {
+                    trans.Abort();
+                    throw e;
+                }
+            }
+        }
 
-                grp.XData = rb;
-                rb.Dispose();
-                trans.Commit();
+        private Circle CreateCirle(Point3d endPoint, double angle, double radius)
+        {
+            Document doc = AcAp.Application.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Transaction trans = doc.TransactionManager.StartTransaction();
+            using (trans)
+            {
+                try
+                {
+                    double radian = angle * Math.PI / 180;
+                    Point3d centerPoint = new Point3d(endPoint.X + radius * Math.Cos(radian), endPoint.Y + radius * Math.Sin(radian), endPoint.Z);
+                    Circle circle = new Circle();
+                    circle.Center = centerPoint;
+                    circle.Radius = radius;
+                    return circle;
+                }
+                catch (System.Exception e)
+                {
+                    trans.Abort();
+                    throw e;
+                }
+            }
+        }
+
+        private Line CreateLine(Point3d startPoint, double angle, double length, string layerName, int colorIndex)
+        {
+            Document doc = AcAp.Application.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Transaction trans = doc.TransactionManager.StartTransaction();
+            using (trans)
+            {
+                try
+                {
+                    double radian = angle * Math.PI / 180;
+                    Point3d endPoint = new Point3d(startPoint.X + length * Math.Cos(radian), startPoint.Y + length * Math.Sin(radian), startPoint.Z);
+                    Line line = new Line();
+                    line.StartPoint = startPoint;
+                    line.EndPoint = endPoint;
+                    line.ColorIndex = colorIndex;
+                    LayerTable layerTable;
+                    layerTable = trans.GetObject(db.LayerTableId, OpenMode.ForRead) as LayerTable;
+                    if (layerTable.Has(layerName) != true)
+                    {
+                        DatabaseHelper.CreateLayer(layerName);
+                    }
+                    line.Layer = layerName;
+                    trans.Commit();
+                    return line;
+                }
+                catch (System.Exception e )
+                {
+                    trans.Abort();
+                    throw e;
+                }
             }
         }
 
@@ -140,61 +198,86 @@ namespace CaseStudy1.Actions
         {
             Document doc = AcAp.Application.DocumentManager.MdiActiveDocument;
             Database db = doc.Database;
-            Transaction trans = doc.TransactionManager.StartTransaction();
             Group group = null;
             Ballon ballon = null;
-            try
+            using (Transaction acTrans = db.TransactionManager.StartTransaction())
             {
-                Document acDoc = AcAp.Application.DocumentManager.MdiActiveDocument;
-                Database acCurDb = acDoc.Database;
-                Editor editor = acDoc.Editor;
-                using (Transaction acTrans = acCurDb.TransactionManager.StartTransaction())
+                try
                 {
                     group = acTrans.GetObject(groupId, OpenMode.ForWrite) as Group;
+                    acTrans.Commit();
                 }
-
+                catch (System.Exception)
+                {
+                    acTrans.Abort();
+                }
             }
-            catch (Exception e)
-            {
 
-            }
             if (group != null)
             {
                 ballon = ReadBallonFromBuffer(group.XData);
                 ViewBallon viewBallon = new ViewBallon();
                 BallonViewModel ballonViewModel = new BallonViewModel();
+                ballonViewModel.BallonObjectId = groupId;
                 ballonViewModel.MyBallon = ballon;
                 viewBallon.DataContext = ballonViewModel;
                 ballonViewModel.GetData = new RelayCommand(EditDataInvoke);
                 ballonViewModel.Layers = DatabaseHelper.GetAllLayerFromCad();
                 AcAp.Application.ShowModalWindow(viewBallon);
+               
+            }
+        }
 
-                //edit, update
-                using (trans)
+        private static void EditDataInvoke(object obj)
+        {
+            Window wnd = obj as Window;
+            BallonViewModel ballonViewModel = wnd.DataContext as BallonViewModel;
+            if (ballonViewModel != null)
+            {
+                string error = string.Empty;
+                if (ballonViewModel.Validate(ref error))
                 {
+                    EditBallon(ballonViewModel);
+                    wnd.Close();
+                }
+                else
+                {
+                    MessageBox.Show(error);
+                }
+            }
+        }
+
+        private static void EditBallon(BallonViewModel ballonViewModel)
+        {
+            Document doc = AcAp.Application.DocumentManager.MdiActiveDocument;
+            Database db = doc.Database;
+            Transaction trans = doc.TransactionManager.StartTransaction();
+            using (trans)
+            {
+                try
+                {
+                    Group group = trans.GetObject(ballonViewModel.BallonObjectId, OpenMode.ForWrite) as Group;
                     ObjectId[] objectIds = group.GetAllEntityIds();
                     Line line = null;
                     Circle circle = null;
                     DBText dBText = null;
-
                     foreach (ObjectId item in objectIds)
                     {
-                        if ((trans.GetObject(item, OpenMode.ForWrite) as Line) != null) {
-                            line = trans.GetObject(item, OpenMode.ForWrite) as Line;
-                           
-                        }
-                        if ((trans.GetObject(item, OpenMode.ForWrite) as Circle) != null)
+                        DBObject ent = trans.GetObject(item, OpenMode.ForWrite);
+                        if (ent is Line)
                         {
-                            circle = trans.GetObject(item, OpenMode.ForWrite) as Circle;
-                           
+                            line = ent as Line;
                         }
-                        if ((trans.GetObject(item, OpenMode.ForWrite) as DBText) != null)
+                        else if (ent is Circle)
                         {
-                            dBText = trans.GetObject(item, OpenMode.ForWrite) as DBText;
-                           
-
+                            circle = ent as Circle;
+                        }
+                        else if (ent is DBText)
+                        {
+                            dBText = ent as DBText;
                         }
                     }
+                    //edit graphical properties for ballon
                     dBText.TextString = ballonViewModel.StringInput;
                     double newLenth = ballonViewModel.Length;
                     double newRadian = ballonViewModel.Angle * Math.PI / 180;
@@ -205,53 +288,33 @@ namespace CaseStudy1.Actions
                     circle.Radius = newRadius;
                     circle.Center = new Point3d(line.EndPoint.X + newRadius * Math.Cos(newRadian), line.EndPoint.Y + newRadius * Math.Sin(newRadian), line.EndPoint.Z);
                     dBText.AlignmentPoint = circle.Center;
-                    string appName = group.XData.AsArray().ElementAt(0).ToString();
-                    try
-                    {
-                        ResultBuffer rb = CreateBalloonBuffer(ballon, appName);
-                        group.XData = rb;
-                    }
-                    catch (Exception e)
-                    {
-
-                    }
+                    //edit xdata
+                    ResultBuffer rb = CreateBalloonBuffer(ballonViewModel.MyBallon, BALLON_XDATA_NAME);
+                    group.XData = rb;// new ResultBuffer(new TypedValue(1001, BALLON_XDATA_NAME));
                     rb.Dispose();
-
                     trans.Commit();
                 }
-                
+                catch (Exception e)
+                {
+                    trans.Abort();
+                    throw e;
+                }
             }
-
-
         }
 
-        private static void EditDataInvoke(object obj)
+        public static ResultBuffer CreateBalloonBuffer(Ballon ballon, string BALLON_XDATA_NAME)
         {
-            Window wnd = obj as Window;
-            wnd.Close();
-            return;
-            
-        }
-
-        public static ResultBuffer CreateBalloonBuffer(Ballon ballon, string ballonXDataName)
-        {
-            var para0 = ballon.Radius;
-            var para1 = ballon.Angle;
-            var para2 = ballon.Length;
-            var para3 = ballon.LayerName;
-            var para4 = ballon.ColorIndex;
-            var para5 = ballon.StringInput;
+             DatabaseHelper.AddRegAppTableRecord(BALLON_XDATA_NAME);
             ResultBuffer rb =
                   new ResultBuffer(
-                    new TypedValue(1001, ballonXDataName),// ten
-                    new TypedValue(1000, para3),// ten layer
-                    new TypedValue(1040, para1),//Angle
-                    new TypedValue(1040, para2),//length
-                    new TypedValue(1040, para0),//ban kinh
-                    new TypedValue(1071, para4),//color index
-                    new TypedValue(1000, para5)//string input
+                    new TypedValue((int)DxfCode.ExtendedDataRegAppName, BALLON_XDATA_NAME),// ten
+                    new TypedValue((int)DxfCode.ExtendedDataAsciiString, ballon.LayerName),// ten layer
+                    new TypedValue((int)DxfCode.ExtendedDataReal, ballon.Angle),//Angle
+                    new TypedValue((int)DxfCode.ExtendedDataReal, ballon.Length),//length
+                    new TypedValue((int)DxfCode.ExtendedDataReal, ballon.Radius),//ban kinh
+                    new TypedValue((int)DxfCode.ExtendedDataInteger32, ballon.ColorIndex),//color index
+                    new TypedValue((int)DxfCode.ExtendedDataAsciiString, ballon.StringInput)//string input
                   );
-
             return rb;
         }
 
@@ -263,7 +326,6 @@ namespace CaseStudy1.Actions
             {
                 Ballon bal = new Ballon();
                 TypedValue[] rvArr = buffer.AsArray();
-               
                 bal.LayerName = (string)rvArr[1].Value;
                 bal.Angle = (double)rvArr[2].Value;
                 bal.Length = (double)rvArr[3].Value;
@@ -277,6 +339,5 @@ namespace CaseStudy1.Actions
                 return null;
             }
         }
-
     }
 }

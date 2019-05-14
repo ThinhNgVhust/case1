@@ -29,7 +29,8 @@ namespace CaseStudy1.Utils
             Document doc = AcAp.Application.DocumentManager.MdiActiveDocument;
             Editor ed = doc.Editor;
             Database db = doc.Database;
-           using (Transaction tr = doc.TransactionManager.StartTransaction()) {
+            using (Transaction tr = doc.TransactionManager.StartTransaction())
+            {
                 RegAppTable rat = tr.GetObject(db.RegAppTableId, OpenMode.ForRead, false) as RegAppTable;
                 if (!rat.Has(regAppName))
                 {
